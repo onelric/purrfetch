@@ -15,7 +15,7 @@ If some parts seem overcomplicated it's simply because I am trying to learn impo
 * Customization via a config file
 * More colors
 * More cats
-* Bunch More modules
+* Bunch more modules
 * Changing the seperator character
 
 <div align=center>
