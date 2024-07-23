@@ -36,7 +36,7 @@ void printStat(const char* c, Stat* s, const char* seperator) {
     printf("%s%s %s %s\n", c, s->name, seperator, s->value);
 }
 
-char* getDistro() {
+char* getDistro(void) {
     FILE* p_file = fopen("/etc/os-release", "r");
     if (!p_file) exit(EXIT_FAILURE);
 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     // Getting username and hostname
     char* user = getEnvValue("USER");
     strncat(user, "@", strlen(user));
-    Stat user_stat = createStat("", strcat(user, unam.nodename));
+    Stat user_stat = createStat("", strcat(user, unam.nodename));
 
     // Get linux distribution
     char* distro = getDistro();
@@ -128,15 +128,17 @@ int main(int argc, char* argv[]) {
     char padding[BUFFER_SIZE] = "";
     for (int i = 0; i < ASCII_PADDING; i++) strcat(padding, " ");
 
+    char seperator[5] = " ~>";
+
     printf("\n");
     printf("%s   ／l、      %s", ANSI_COLOR_RESET, padding);
-    printStat(ANSI_COLOR_CYAN, &user_stat, " ~> ");
+    printStat(ANSI_COLOR_CYAN, &user_stat, seperator);
     printf("%s （ﾟ､ ｡ ７    %s", ANSI_COLOR_RESET, padding);
-    printStat(ANSI_COLOR_YELLOW, &kernel_stat, " ~> ");
+    printStat(ANSI_COLOR_YELLOW, &kernel_stat, seperator);
     printf("%s   l、~ ヽ    %s", ANSI_COLOR_RESET, padding);
-    printStat(ANSI_COLOR_GREEN, &distro_stat, " ~> ");
+    printStat(ANSI_COLOR_GREEN, &distro_stat, seperator);
     printf("%s   ししと ）ノ%s", ANSI_COLOR_RESET, padding);
-    printStat(ANSI_COLOR_RED, &wm_stat, " ~> ");
+    printStat(ANSI_COLOR_RED, &wm_stat, seperator);
     /* printStat(ANSI_COLOR_MAGENTA, &shell_stat, " ~> "); */
     /* printStat(ANSI_COLOR_BLUE, &ram_stat, "   ~> "); */
     printf("\n");
