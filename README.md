@@ -1,8 +1,7 @@
 <div align="center">
 
 # Fetchnip
-This is a very simple fetch written in C to help me learn the language.
-If some parts seem overcomplicated it's simply because I am trying to learn important aspects of the language.
+This is a simple system fetch i wrote in C to better understand low level memory management.
 #
 
 <img alt="" src="https://imgur.com/jTuDxy9.gif" width="420px" align="right"></img>
