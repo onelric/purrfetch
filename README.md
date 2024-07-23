@@ -27,7 +27,8 @@ If some parts seem overcomplicated it's simply because I am trying to learn impo
 Simply move the binary to /usr/bin or ~/.local/bin/
 ```
 git clone https://gitlab.com/imelric/fetchnip.git
-mv fetchnip/fetchip ~/.local/bin/
+cp fetchnip/
+mv fetchnip ~/.local/bin/
 ```
 
 </div>
