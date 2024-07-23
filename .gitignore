@@ -1,3 +1,5 @@
-test.c
-notes.me
-.clang-format
+*
+!main.c
+!fetchnip
+!Makefile
+!README.md

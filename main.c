@@ -8,13 +8,33 @@
 
 #define BUFFER_SIZE 256
 
-#define ANSI_COLOR_RED "\x1b[31m"
-#define ANSI_COLOR_GREEN "\x1b[32m"
-#define ANSI_COLOR_YELLOW "\x1b[33m"
-#define ANSI_COLOR_BLUE "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN "\x1b[36m"
+#define ANSI_COLOR_RED "\x1b[3;31m"
+#define ANSI_COLOR_GREEN "\x1b[3;32m"
+#define ANSI_COLOR_YELLOW "\x1b[3;33m"
+#define ANSI_COLOR_BLUE "\x1b[3;34m"
+#define ANSI_COLOR_MAGENTA "\x1b[3;35m"
+#define ANSI_COLOR_CYAN "\x1b[3;36m"
 #define ANSI_COLOR_RESET "\x1b[0m"
+
+#define ASCII_PADDING 3
+
+typedef struct {
+    char name[BUFFER_SIZE / 2];
+    char value[BUFFER_SIZE];
+} Stat;
+
+const Stat createStat(const char* name, const char* value) {
+    Stat stat;
+
+    strcpy(stat.name, name);
+    strcpy(stat.value, value);
+
+    return stat;
+}
+
+void printStat(const char* c, Stat* s, const char* seperator) {
+    printf("%s%s %s %s\n", c, s->name, seperator, s->value);
+}
 
 char* getDistro() {
     FILE* p_file = fopen("/etc/os-release", "r");
@@ -45,51 +65,83 @@ char* getDistro() {
     return NULL;
 }
 
-const char* getEnvValue(const char* v) {
+char* getEnvValue(const char* v) {
     char* s = getenv(v);
     char* env = s == NULL ? "Unknown" : s;
     return env;
 }
 
+void strlower(char* s) {
+    for (int i = 0; i < strlen(s); i++) s[i] = tolower(s[i]);
+}
+
 int main(int argc, char* argv[]) {
+    // Parsing arguments
+
+    // Fetching system information
     struct sysinfo sys_info;
     if (sysinfo(&sys_info) != 0) exit(EXIT_FAILURE);
 
+    // Fetching uname
     struct utsname unam;
     if (uname(&unam) != 0) exit(EXIT_FAILURE);
 
+    // Getting username and hostname
+    char* user = getEnvValue("USER");
+    strncat(user, "@", strlen(user));
+    Stat user_stat = createStat("", strcat(user, unam.nodename));
+
+    // Get linux distribution
     char* distro = getDistro();
-    for (int i = 0; i < strlen(distro); i++) distro[i] = tolower(distro[i]);
+    strlower(distro);
+    Stat distro_stat = createStat("󰌽", distro);
 
+    // Fetch window manager being used
     const char* wm = getEnvValue("XDG_CURRENT_DESKTOP");
-    const char* user = getEnvValue("USER");
+    Stat wm_stat = createStat("󰖲", wm);
 
-    const char* shell = getEnvValue("SHELL");
-    char* p_sh = malloc(strlen(shell) + 1);
-    strcpy(p_sh, shell);
+    // Fetching users shell
+    char* shell = getEnvValue("SHELL");
+    Stat shell_stat = createStat("shell", basename(shell));
 
+    // TODO)) Used ram works wonky. TODO))
+    // Some wonky calculations to convert bits to gigabytes
     long total_ram = sys_info.totalram * sys_info.mem_unit;
     long used_ram = total_ram - sys_info.freeram * sys_info.mem_unit;
     long bytes_gb = (1024 * 1024 * 1024);
+    char buff[BUFFER_SIZE];
+    sprintf(buff, "%ld GB / %ld GB", used_ram / bytes_gb, total_ram / bytes_gb);
+    Stat ram_stat = createStat("ram", buff);
 
-    const char* modules[6][BUFFER_SIZE] = {
-        {"host", unam.nodename, user}, {"wm", wm}, {"os", distro}, {"kernel", unam.sysname, unam.release},
-        {"shell", basename(p_sh)},
-    };
+    char* kernel_name = strncat(unam.sysname, " ", strlen(unam.sysname));
+    strlower(kernel_name);
+    Stat kernel_stat = createStat("", strcat(kernel_name, unam.release));
 
-    printf("\n\n");
-    printf("      ૮ ˶ᵔ ᵕ ᵔ˶ ა\n");
-    printf("\x1b[3m");
-    printf("%s%s   ->  %s@%s\n", ANSI_COLOR_CYAN, modules[0][0], modules[0][1], modules[0][2]);
-    printf("%s%s ->  %s %s\n", ANSI_COLOR_YELLOW, modules[3][0], modules[3][1], modules[3][2]);
-    printf("%s%s     ->  %s\n", ANSI_COLOR_GREEN, modules[2][0], modules[2][1]);
-    printf("%s%s     ->  %s\n", ANSI_COLOR_RED, modules[1][0], modules[1][1]);
-    printf("%s%s  ->  %s\n", ANSI_COLOR_MAGENTA, modules[4][0], modules[4][1]);
-    printf("%s%s    ->  %ld GB / %ld GB\n", ANSI_COLOR_BLUE, "ram", used_ram / bytes_gb, total_ram / bytes_gb);
+    /*
+       cute cat ascii:
+        　／l、
+        （ﾟ､ ｡ ７ 　
+        　l、~ ヽ
+        　ししと ）ノ
+    */
+
+    char padding[BUFFER_SIZE] = "";
+    for (int i = 0; i < ASCII_PADDING; i++) strcat(padding, " ");
+
+    printf("\n");
+    printf("%s   ／l、      %s", ANSI_COLOR_RESET, padding);
+    printStat(ANSI_COLOR_CYAN, &user_stat, " ~> ");
+    printf("%s （ﾟ､ ｡ ７    %s", ANSI_COLOR_RESET, padding);
+    printStat(ANSI_COLOR_YELLOW, &kernel_stat, " ~> ");
+    printf("%s   l、~ ヽ    %s", ANSI_COLOR_RESET, padding);
+    printStat(ANSI_COLOR_GREEN, &distro_stat, " ~> ");
+    printf("%s   ししと ）ノ%s", ANSI_COLOR_RESET, padding);
+    printStat(ANSI_COLOR_RED, &wm_stat, " ~> ");
+    /* printStat(ANSI_COLOR_MAGENTA, &shell_stat, " ~> "); */
+    /* printStat(ANSI_COLOR_BLUE, &ram_stat, "   ~> "); */
     printf("\n");
 
     free(distro);
-    free(p_sh);
 
     return EXIT_SUCCESS;
 }
