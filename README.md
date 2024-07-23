@@ -5,7 +5,7 @@ This is a very simple fetch written in C to help me learn the language.
 If some parts seem overcomplicated it's simply because I am trying to learn important aspects of the language.
 #
 
-<img alt="" src="https://imgur.com/SsgCxv8.png" width="405px" align="right"></img>
+<img alt="" src="https://imgur.com/SsgCxv8.png" width="390px" align="right"></img>
 
 ### Maybe to come
 
